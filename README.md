@@ -1,4 +1,4 @@
-# UnityTumourSimulator
+# TumourVisualizer
 
 ![alt text](https://github.com/Spenca/UnityTumourSimulator/blob/master/Screenshot.png)
 
