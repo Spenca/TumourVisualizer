@@ -273,6 +273,8 @@ struct Genotype {
   Genotype(void) ;
   ~Genotype(void) { sequence.clear() ; }
   Genotype(Genotype *mother, int prevg, int no_snp) ;
+	Genotype *mother_genotype;
+	int identifier;
 };
 
 class Hist {

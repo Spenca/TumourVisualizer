@@ -202,6 +202,7 @@ Genotype::Genotype(void)
   m[0]=m[1]=migr ; 
 #endif
   number=1 ; no_resistant=no_drivers=0 ; sequence.clear() ; prev_gen=-1 ;
+  mother_genotype=NULL;
 }
 
 Genotype::Genotype(Genotype *mother, int prevg, int no_snp) { 
@@ -246,6 +247,7 @@ Genotype::Genotype(Genotype *mother, int prevg, int no_snp) {
   }
   if (L>1e9) err("L too big") ;
   number=1 ;
+  mother_genotype=mother;
 }
 
 vector<Genotype*> genotypes ;

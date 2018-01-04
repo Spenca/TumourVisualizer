@@ -57,7 +57,7 @@ const float gama=1e-2, gama_res=5e-8 ; // these are rates per daughter cell. Rat
 //#define MIGRATION_MATRIX
 
 // used when MIGRATION_MATRIX is not defined
-const float migr=0 ;
+extern float migr ;
 // used only when MIGRATION_MATRIX is defined
 //const float migr[2][2]={{0,0} // before treatment: WT/resistant
 //                        ,{0,1e-5}}; // after treatment: WT/resistant
@@ -90,7 +90,7 @@ float time_to_treat=10*(365./12) ; // this is ignored when MAKE_TREATMENT_N is d
 #endif
 
 // what data files to save (see main.cpp) :
-const unsigned int save_format=F_IMAGE/* | F_IMAGEHIRES*/ | F_ALLCELLS/* | SOMECELLS*/ | F_POINTCLOUD | MOSTABUND ; 
+const unsigned int save_format=F_IMAGE/* | F_IMAGEHIRES*/ | F_ALLCELLS/* | SOMECELLS*/ | F_POINTCLOUD | MOSTABUND | F_TABLES; 
 
 const int _resol=1 ; // spatial resolution of sampling [cells]
 const int _bins=10000 ; // max number of bins

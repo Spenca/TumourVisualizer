@@ -3,9 +3,9 @@
    Based on the algorithm described in
    
    Bartlomiej Waclaw, Ivana Bozic, Meredith E. Pittman, Ralph H. Hruban, 
-   Bert Vogelstein, and Martin A. Nowak. “A Spatial Model Predicts That 
-   Dispersal and Cell Turnover Limit Intratumour Heterogeneity.” Nature 525, 
-   no. 7568 (September 10, 2015): 261–64. doi:10.1038/nature14971.
+   Bert Vogelstein, and Martin A. Nowak. "A Spatial Model Predicts That 
+   Dispersal and Cell Turnover Limit Intratumour Heterogeneity." Nature 525, 
+   no. 7568 (September 10, 2015): 261-64. doi:10.1038/nature14971.
 
    Contributing author:
    Dr Bartek Waclaw, University of Edinburgh, bwaclaw@staffmail.ed.ac.uk
@@ -61,6 +61,7 @@ extern double tt ;
 extern float time_to_treat ;
 
 int sample=0 ;
+float migr=10e-6 ;
 
 void save_positions(char *name, float dz) 
 {
@@ -98,6 +99,56 @@ void save_pcd(char *name)
 #endif
   }        
   fclose(data) ; 
+}
+
+void save_tables(char *name) 
+{
+  FILE *data = fopen(name, "w");
+
+  for (int i = 0; i < genotypes.size(); i++) {
+    
+    if (genotypes[i] != NULL && genotypes[i]->number > 0) {
+      genotypes[i]->identifier = i;
+    }
+  }
+
+  fprintf(data, "Cell table\n");
+  fprintf(data, "FIELDS: cell_id x y z genotype_id\n");
+  for (int i = 0; i < cells.size(); i++) {
+    Lesion *ll = lesions[cells[i].lesion];
+    Genotype *g = genotypes[cells[i].gen];
+  
+    fprintf(data, "%d %d %d %d %d\n", i, int(cells[i].x+ll->r.x), int(cells[i].y+ll->r.y), int(cells[i].z+ll->r.z), g->identifier);
+  }
+
+  fprintf(data, "Genotype table\n");
+  fprintf(data, "FIELDS: genotype_id mother_genotype_id\n");
+  for (int i = 0; i < cells.size(); i++) {
+    Genotype *g = genotypes[cells[i].gen];
+    int mother_genotype_id;
+    
+    if (g->mother_genotype) {
+      mother_genotype_id = g->mother_genotype->identifier;  
+    } else {
+      mother_genotype_id = -1;
+    }
+      
+    fprintf(data, "%d %d\n", g->identifier, mother_genotype_id);
+  } 
+
+  fprintf(data, "Mutation table\n");
+  fprintf(data, "FIELDS: genotype_id mutation_id is_driver is_resistant\n");
+  for (int i = 0; i < cells.size(); i++) {
+    Genotype *g = genotypes[cells[i].gen];
+    
+    for (int j = 0; j < g->sequence.size(); j++) {
+      bool is_driver = ((g->sequence[j] & DRIVER_PM) != 0);
+      bool is_resistant = ((g->sequence[j] & RESISTANT_PM) != 0);
+      
+      fprintf(data, "%d %d %d %d\n", g->identifier, g->sequence[j], is_driver, is_resistant);
+    }
+  }         
+  fclose(data); 
 }
 
 inline float br(float x, float a) 
@@ -405,7 +456,7 @@ int main(int argc, char *argv[])
       if (save_format&F_ALLCELLS) { sprintf(name,"%s/cells_%d.dat",DIR,max_size) ; save_positions(name,1e6) ; } 
       if (save_format&SOMECELLS) { sprintf(name,"%s/cells_%d.dat",DIR,max_size) ; save_positions(name,1./density) ; }
       if (save_format&F_POINTCLOUD) { sprintf(name,"%s/pointcloud_%d.pcd",DIR,max_size) ; save_pcd(name) ; }
-
+      if (save_format&F_TABLES) { sprintf(name,"%s/tables_%d.pcd",DIR,max_size) ; save_tables(name) ; }
       if (save_format&F_IMAGE) { sprintf(name,"%s/genotypes_%d.dat",DIR,max_size) ; save_genotypes(name) ; }
       if (save_format&MOSTABUND) { sprintf(name,"%s/most_abund_gens_%d.dat",DIR,max_size) ; save_most_abund_gens(name,most_abund) ; }
     }
