@@ -52,7 +52,7 @@
 //#define MAKE_TREATMENT_N // if defined, simulate treatment after reaching given size
 //#define MAKE_TREATMENT_T // if defined, simulate treatment after reaching given time
 
-const float gama=1e-2, gama_res=5e-8 ; // these are rates per daughter cell. Rates per diploid exome will be 2x higher (these values are given in the paper)
+extern float gama, gama_res ; // these are rates per daughter cell. Rates per diploid exome will be 2x higher (these values are given in the paper)
 
 //#define MIGRATION_MATRIX
 

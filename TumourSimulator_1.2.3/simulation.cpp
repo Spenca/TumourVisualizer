@@ -57,7 +57,7 @@
 #include <iostream>
 using namespace std;
 
-char *DIR ; // name given as 1st argument from the command line
+string DIR ; // name given as 1st argument from the command line
 
 #include "params.h"
 #include "classes.h"
@@ -410,8 +410,8 @@ void init()
   for (i=0;i<=_nonn;i++) kln[i]=sqrt(1.*SQR(kx[i])+1.*SQR(ky[i])+1.*SQR(kz[i])) ;
 
   char txt[256] ;
-  sprintf(txt,"mkdir %s",DIR) ; system(txt) ;
-  sprintf(txt,"%s/%s_%d.dat",DIR,DIR,RAND) ; times=fopen(txt,"w") ;
+  sprintf(txt,"mkdir %s",DIR.c_str()) ; system(txt) ;
+  sprintf(txt,"%s/%s_%d.dat",DIR.c_str(),DIR.c_str(),RAND) ; times=fopen(txt,"w") ;
   timesbuffer=new char[(1<<16)] ;
   setvbuf (times , timesbuffer , _IOFBF , (1<<16));  // this is to prevent saving data if no fflush is attempted 
                                                   // (this e.g. allows one to discard N<256)
@@ -573,18 +573,18 @@ void save_spatial(int *snp_no)
   snp_corr_cd=new Hist[_bins] ; 
 
   snps_corr(snp_corr) ;
-  sprintf(tmp,"%s/corr_%d_%d.dat",DIR,RAND,sample) ; save_snp_corr(tmp, snp_corr) ;                
+  sprintf(tmp,"%s/corr_%d_%d.dat",DIR.c_str(),RAND,sample) ; save_snp_corr(tmp, snp_corr) ;                
   snps_corr_cutoff(snp_corr,0.1,snp_no) ;
-  sprintf(tmp,"%s/cutoff01corr_%d_%d.dat",DIR,RAND,sample) ; save_snp_corr(tmp, snp_corr) ;                
+  sprintf(tmp,"%s/cutoff01corr_%d_%d.dat",DIR.c_str(),RAND,sample) ; save_snp_corr(tmp, snp_corr) ;                
 
   if (driver_adv>0 || driver_migr_adv>0) {
     p_driver1=new Hist[_bins] ; p_driver2=new Hist[_bins]; p_driver3=new Hist[_bins]; 
     find_p_driver(p_driver1,p_driver2,p_driver3) ;
-    sprintf(tmp,"%s/P_driver1_%d_%d.dat",DIR,RAND,sample) ;  save_snp_corr(tmp, p_driver1) ;
-    sprintf(tmp,"%s/P_driver2_%d_%d.dat",DIR,RAND,sample) ;  save_snp_corr(tmp, p_driver2) ;
-    sprintf(tmp,"%s/P_driver3_%d_%d.dat",DIR,RAND,sample) ;  save_snp_corr(tmp, p_driver3) ;
+    sprintf(tmp,"%s/P_driver1_%d_%d.dat",DIR.c_str(),RAND,sample) ;  save_snp_corr(tmp, p_driver1) ;
+    sprintf(tmp,"%s/P_driver2_%d_%d.dat",DIR.c_str(),RAND,sample) ;  save_snp_corr(tmp, p_driver2) ;
+    sprintf(tmp,"%s/P_driver3_%d_%d.dat",DIR.c_str(),RAND,sample) ;  save_snp_corr(tmp, p_driver3) ;
     snps_corr_cond_driver(snp_corr_cd) ;
-    sprintf(tmp,"%s/corr_cond_driver_%d_%d.dat",DIR,RAND,sample) ;  save_snp_corr(tmp, snp_corr_cd) ;
+    sprintf(tmp,"%s/corr_cond_driver_%d_%d.dat",DIR.c_str(),RAND,sample) ;  save_snp_corr(tmp, snp_corr_cd) ;
     delete [] p_driver1 ;    delete [] p_driver2 ;    delete [] p_driver3 ;  
   }
 

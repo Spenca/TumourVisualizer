@@ -38,6 +38,7 @@ using namespace std;
 #define __MAIN
 #include "params.h"
 #include "classes.h"
+#include <tclap/CmdLine.h>
 
 #if (defined(GILLESPIE) && defined(FASTER_KMC)) || (defined(GILLESPIE) && defined(NORMAL)) || (defined(NORMAL) && defined(FASTER_KMC))
   #error too many methods defined!
@@ -55,13 +56,14 @@ using namespace std;
   #error neither VON_NEUMANN_NEIGHBOURHOOD nor MOORE_NEIGHBOURHOOD defined!
 #endif
 
-extern char *DIR ; 
+extern string DIR ; 
 extern int RAND, sample, treatment, max_size ;
 extern double tt ;
 extern float time_to_treat ;
 
 int sample=0 ;
 float migr=10e-6 ;
+float gama=1e-2, gama_res=5e-8 ;
 
 void save_positions(char *name, float dz) 
 {
@@ -374,19 +376,35 @@ int main(int argc, char *argv[])
 #if defined(NORMAL)   
   cout <<"method: NORMAL\n" ;
 #endif
-
+ 
   int nsam ;
-  if (argc!=4) { err(" Error:: arguments needed: name, no_samples, RAND. Program terminated. \n"); } 
-  else { 
-    DIR=argv[1] ;
-    nsam=atoi(argv[2]) ;
-    RAND=atoi(argv[3]) ;
+  try {
+    
+    TCLAP::CmdLine cmd("TumourSimulator");
+    TCLAP::UnlabeledValueArg<string> dirArg("DIR","Directory",true,"","string",cmd);
+    TCLAP::UnlabeledValueArg<int> nsamArg("nsam","Number of samples",true,0,"int",cmd);
+    TCLAP::UnlabeledValueArg<int> randArg("RAND","RAND",true,0,"int",cmd);
+    TCLAP::ValueArg<float> migrArg("m","migr","Migration probability",false,migr,"float",cmd);
+    TCLAP::ValueArg<float> gamaArg("g","gama","Mutation probability per replication",false,gama,"float",cmd);
+    TCLAP::ValueArg<float> gamaResArg("r","gama_res","Mutation probability for resistance mutations",false,gama_res,"float",cmd);
+    cmd.parse(argc,argv);
+    
+    DIR = dirArg.getValue();
+    nsam = nsamArg.getValue();
+    RAND = randArg.getValue();
+    migr = migrArg.getValue();
+    gama = gamaArg.getValue();
+    gama_res = gamaResArg.getValue();
+  
+  } catch (TCLAP::ArgException &e) {
+    cerr << "error: " << e.error() << " for arg " << e.argId() << endl;
   }
-  cout <<DIR<<" "<<" "<<nsam<<" "<<RAND<<endl ;
+  
+  cout << DIR << " " << " " << nsam << " " << RAND << " " << migr << " " << gama << " " << gama_res << endl;
   _srand48(RAND) ;
   init();
   char name[256],name2[256] ;
-  sprintf(name,"%s/each_run_%d.dat",DIR,max_size) ;
+  sprintf(name,"%s/each_run_%d.dat",DIR.c_str(),max_size) ;
   FILE *er=fopen(name,"w") ; fclose(er) ;
   for (sample=0;sample<nsam;sample++) { 
     reset() ;
@@ -412,7 +430,7 @@ int main(int argc, char *argv[])
     fflush(stdout) ;
     save_data() ; 
     
-    sprintf(name,"%s/each_run_%d.dat",DIR,max_size) ;
+    sprintf(name,"%s/each_run_%d.dat",DIR.c_str(),max_size) ;
     FILE *er=fopen(name,"a") ;
     fprintf(er,"%d\t%d %lf\n",sample,s,tt) ;
     fclose(er) ;
@@ -433,8 +451,8 @@ int main(int argc, char *argv[])
 
     printf("saving PMs...\n") ;
     int most_abund[100] ;
-    sprintf(name,"%s/all_PMs_%d_%d.dat",DIR,RAND,sample) ; save_snps(name,snp_no,max_size,0,most_abund) ;
-    if (driver_adv>0 || driver_migr_adv>0) { printf("saving driver PMs...\n") ; sprintf(name,"%s/drv_PMs_%d_%d.dat",DIR,RAND,sample) ; save_snps(name,snp_drivers,max_size,0,NULL) ; }
+    sprintf(name,"%s/all_PMs_%d_%d.dat",DIR.c_str(),RAND,sample) ; save_snps(name,snp_no,max_size,0,most_abund) ;
+    if (driver_adv>0 || driver_migr_adv>0) { printf("saving driver PMs...\n") ; sprintf(name,"%s/drv_PMs_%d_%d.dat",DIR.c_str(),RAND,sample) ; save_snps(name,snp_drivers,max_size,0,NULL) ; }
     delete [] snp_no ; delete [] snp_drivers ;
 
     if (nsam==1) {  // do this only when making images of tumours & running only one sample
@@ -446,19 +464,19 @@ int main(int argc, char *argv[])
 
       vecd li1(1,-1,-0.3) ; // lighting direction
       float density ; 
-      if (save_format&F_IMAGE) { sprintf(name,"%s/2d_image1_%d.dat",DIR,max_size) ; density=save_2d_image(name,li1) ; }
-      if (save_format&F_IMAGEHIRES) { sprintf(name,"%s/2d_image_hires1_%d.dat",DIR,max_size) ; density=save_2d_image_hires(name,li1) ; }
+      if (save_format&F_IMAGE) { sprintf(name,"%s/2d_image1_%d.dat",DIR.c_str(),max_size) ; density=save_2d_image(name,li1) ; }
+      if (save_format&F_IMAGEHIRES) { sprintf(name,"%s/2d_image_hires1_%d.dat",DIR.c_str(),max_size) ; density=save_2d_image_hires(name,li1) ; }
 //#ifdef COLORS
-//      sprintf(name,"%s/2d_image1_%d.dat",DIR,max_size) ; sprintf(name2,"%s/2d_image_colours1_%d.bmp",DIR,max_size) ; density=save_2d_image(name,name2,li1) ;
+//      sprintf(name,"%s/2d_image1_%d.dat",DIR.c_str(),max_size) ; sprintf(name2,"%s/2d_image_colours1_%d.bmp",DIR.c_str(),max_size) ; density=save_2d_image(name,name2,li1) ;
 //#endif
       // if you want to save more images in a single run, add new lines like this
-      //       vecd li2(1,-1,-1) ; sprintf(name,"%s/2d_image2_%d.dat",DIR,max_size) ; density=save_2d_image(name,li2) ;
-      if (save_format&F_ALLCELLS) { sprintf(name,"%s/cells_%d.dat",DIR,max_size) ; save_positions(name,1e6) ; } 
-      if (save_format&SOMECELLS) { sprintf(name,"%s/cells_%d.dat",DIR,max_size) ; save_positions(name,1./density) ; }
-      if (save_format&F_POINTCLOUD) { sprintf(name,"%s/pointcloud_%d.pcd",DIR,max_size) ; save_pcd(name) ; }
-      if (save_format&F_TABLES) { sprintf(name,"%s/tables_%d.pcd",DIR,max_size) ; save_tables(name) ; }
-      if (save_format&F_IMAGE) { sprintf(name,"%s/genotypes_%d.dat",DIR,max_size) ; save_genotypes(name) ; }
-      if (save_format&MOSTABUND) { sprintf(name,"%s/most_abund_gens_%d.dat",DIR,max_size) ; save_most_abund_gens(name,most_abund) ; }
+      //       vecd li2(1,-1,-1) ; sprintf(name,"%s/2d_image2_%d.dat",DIR.c_str(),max_size) ; density=save_2d_image(name,li2) ;
+      if (save_format&F_ALLCELLS) { sprintf(name,"%s/cells_%d.dat",DIR.c_str(),max_size) ; save_positions(name,1e6) ; } 
+      if (save_format&SOMECELLS) { sprintf(name,"%s/cells_%d.dat",DIR.c_str(),max_size) ; save_positions(name,1./density) ; }
+      if (save_format&F_POINTCLOUD) { sprintf(name,"%s/pointcloud_%d.pcd",DIR.c_str(),max_size) ; save_pcd(name) ; }
+      if (save_format&F_TABLES) { sprintf(name,"%s/tables_%d.pcd",DIR.c_str(),max_size) ; save_tables(name) ; }
+      if (save_format&F_IMAGE) { sprintf(name,"%s/genotypes_%d.dat",DIR.c_str(),max_size) ; save_genotypes(name) ; }
+      if (save_format&MOSTABUND) { sprintf(name,"%s/most_abund_gens_%d.dat",DIR.c_str(),max_size) ; save_most_abund_gens(name,most_abund) ; }
     }
 #endif
   } 
