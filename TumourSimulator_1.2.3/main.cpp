@@ -170,10 +170,11 @@ void save_mutation_table(char *name)
     Genotype *g = genotypes[cells[i].gen];
     
     for (int j = 0; j < g->sequence.size(); j++) {
+      int mutation_id = (g->sequence[j] & ~DRIVER_PM & ~RESISTANT_PM);
       bool is_driver = ((g->sequence[j] & DRIVER_PM) != 0);
-      bool is_resistant = ((g->sequence[j] & RESISTANT_PM) != 0);
+      bool is_resistant = ((g->sequence[j] & RESISTANT_PM) != 0); 
       
-      fprintf(data, "%d %d %d %d\n", g->identifier, g->sequence[j], is_driver, is_resistant);
+      fprintf(data, "%d %d %d %d\n", g->identifier, mutation_id, is_driver, is_resistant);
     }
   }         
   fclose(data); 
