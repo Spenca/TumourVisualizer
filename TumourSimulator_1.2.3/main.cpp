@@ -103,7 +103,7 @@ void save_pcd(char *name)
   fclose(data) ; 
 }
 
-void save_tables(char *name) 
+void save_cell_table(char *name) 
 {
   FILE *data = fopen(name, "w");
 
@@ -121,6 +121,19 @@ void save_tables(char *name)
     Genotype *g = genotypes[cells[i].gen];
   
     fprintf(data, "%d %d %d %d %d\n", i, int(cells[i].x+ll->r.x), int(cells[i].y+ll->r.y), int(cells[i].z+ll->r.z), g->identifier);
+  }   
+  fclose(data); 
+}
+
+void save_genotype_table(char *name) 
+{
+  FILE *data = fopen(name, "w");
+
+  for (int i = 0; i < genotypes.size(); i++) {
+    
+    if (genotypes[i] != NULL && genotypes[i]->number > 0) {
+      genotypes[i]->identifier = i;
+    }
   }
 
   fprintf(data, "Genotype table\n");
@@ -136,7 +149,20 @@ void save_tables(char *name)
     }
       
     fprintf(data, "%d %d\n", g->identifier, mother_genotype_id);
-  } 
+  }        
+  fclose(data); 
+}
+
+void save_mutation_table(char *name) 
+{
+  FILE *data = fopen(name, "w");
+
+  for (int i = 0; i < genotypes.size(); i++) {
+    
+    if (genotypes[i] != NULL && genotypes[i]->number > 0) {
+      genotypes[i]->identifier = i;
+    }
+  }
 
   fprintf(data, "Mutation table\n");
   fprintf(data, "FIELDS: genotype_id mutation_id is_driver is_resistant\n");
@@ -474,7 +500,9 @@ int main(int argc, char *argv[])
       if (save_format&F_ALLCELLS) { sprintf(name,"%s/cells_%d.dat",DIR.c_str(),max_size) ; save_positions(name,1e6) ; } 
       if (save_format&SOMECELLS) { sprintf(name,"%s/cells_%d.dat",DIR.c_str(),max_size) ; save_positions(name,1./density) ; }
       if (save_format&F_POINTCLOUD) { sprintf(name,"%s/pointcloud_%d.pcd",DIR.c_str(),max_size) ; save_pcd(name) ; }
-      if (save_format&F_TABLES) { sprintf(name,"%s/tables_%d.pcd",DIR.c_str(),max_size) ; save_tables(name) ; }
+      if (save_format&F_TABLES) { sprintf(name,"%s/cell_table_%d.pcd",DIR.c_str(),max_size) ; save_cell_table(name) ; }
+      if (save_format&F_TABLES) { sprintf(name,"%s/genotype_table_%d.pcd",DIR.c_str(),max_size) ; save_genotype_table(name) ; }
+      if (save_format&F_TABLES) { sprintf(name,"%s/mutation_table_%d.pcd",DIR.c_str(),max_size) ; save_mutation_table(name) ; }
       if (save_format&F_IMAGE) { sprintf(name,"%s/genotypes_%d.dat",DIR.c_str(),max_size) ; save_genotypes(name) ; }
       if (save_format&MOSTABUND) { sprintf(name,"%s/most_abund_gens_%d.dat",DIR.c_str(),max_size) ; save_most_abund_gens(name,most_abund) ; }
     }
