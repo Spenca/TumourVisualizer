@@ -26,4 +26,4 @@ A couple of notes:
 If a cell has a `mother_genotype_id` of `-1`, that means it has no mother genotype. Furthermore, different coloured cells have different genotypes, as the colour of a cell in the visualization is determined by its genotype information. 
 
 ## Future work
-I'd like to experiment with changing dispersal and mutation probability values within the TumourSimulator source code, as detailed within [this](https://www.nature.com/articles/nature14971) paper. I'd also be interested in potentially modifying the visualizer to update in real time and/or have the ability to step through different states, by providing multiple outputs from TumourSimulator.
+I'm interested in potentially modifying the visualizer to update in real time and/or have the ability to step through different states, by providing multiple outputs from TumourSimulator.
