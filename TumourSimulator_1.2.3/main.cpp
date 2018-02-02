@@ -114,13 +114,12 @@ void save_cell_table(char *name)
     }
   }
 
-  fprintf(data, "Cell table\n");
-  fprintf(data, "FIELDS: cell_id x y z genotype_id\n");
+  fprintf(data, "cell_id,x,y,z,genotype_id\n");
   for (int i = 0; i < cells.size(); i++) {
     Lesion *ll = lesions[cells[i].lesion];
     Genotype *g = genotypes[cells[i].gen];
   
-    fprintf(data, "%d %d %d %d %d\n", i, int(cells[i].x+ll->r.x), int(cells[i].y+ll->r.y), int(cells[i].z+ll->r.z), g->identifier);
+    fprintf(data, "%d,%d,%d,%d,%d\n", i, int(cells[i].x+ll->r.x), int(cells[i].y+ll->r.y), int(cells[i].z+ll->r.z), g->identifier);
   }   
   fclose(data); 
 }
@@ -136,8 +135,7 @@ void save_genotype_table(char *name)
     }
   }
 
-  fprintf(data, "Genotype table\n");
-  fprintf(data, "FIELDS: genotype_id mother_genotype_id\n");
+  fprintf(data, "genotype_id,mother_genotype_id\n");
   for (int i = 0; i < cells.size(); i++) {
     Genotype *g = genotypes[cells[i].gen];
     int mother_genotype_id;
@@ -148,7 +146,7 @@ void save_genotype_table(char *name)
       mother_genotype_id = -1;
     }
       
-    fprintf(data, "%d %d\n", g->identifier, mother_genotype_id);
+    fprintf(data, "%d,%d\n", g->identifier, mother_genotype_id);
   }        
   fclose(data); 
 }
@@ -164,8 +162,7 @@ void save_mutation_table(char *name)
     }
   }
 
-  fprintf(data, "Mutation table\n");
-  fprintf(data, "FIELDS: genotype_id mutation_id is_driver is_resistant\n");
+  fprintf(data, "genotype_id,mutation_id,is_driver,is_resistant\n");
   for (int i = 0; i < cells.size(); i++) {
     Genotype *g = genotypes[cells[i].gen];
     
@@ -174,7 +171,7 @@ void save_mutation_table(char *name)
       bool is_driver = ((g->sequence[j] & DRIVER_PM) != 0);
       bool is_resistant = ((g->sequence[j] & RESISTANT_PM) != 0); 
       
-      fprintf(data, "%d %d %d %d\n", g->identifier, mutation_id, is_driver, is_resistant);
+      fprintf(data, "%d,%d,%d,%d\n", g->identifier, mutation_id, is_driver, is_resistant);
     }
   }         
   fclose(data); 

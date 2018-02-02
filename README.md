@@ -20,10 +20,34 @@ The visualizer accepts the file `pointcloud_10000.pcd` as input; at the root pro
 After compiling the code found in the `TumourSimulator_1.2.3` directory, more information about the specifiable parameters with which the simulation can be run is viewable by running `./cancer.exe -h` in a terminal. More information about these parameters is also available in [this](https://www.nature.com/articles/nature14971) paper, which describes the model of tumour growth that TumourSimulator attempts to simulate.
 
 ## Categorical information
-The modified TumourSimulator included in this repository outputs a file called `tables_10000.pcd`. A copy of this file is included in this repository's root for reference. Within the file is information regarding the cells, genotypes and mutations present in the simulation. The fields in each table are labeled within the file. There are 3 tables in the file, each row in each table represents a cell in the simulation (each table contains information on the same set of cells).
+The modified TumourSimulator included in this repository outputs 3 files containing tables of data, called `cell_table_10000.pcd`, `genotype_table_10000.pcd`, and `mutation_table_10000.pcd`. Each row in the cell and genotype tables represents a single cell in the simulation, and each group of adjacent rows in the mutation table with the same `genotype_id` also represents a single cell.
 
-A couple of notes:
-If a cell has a `mother_genotype_id` of `-1`, that means it has no mother genotype. Furthermore, different coloured cells have different genotypes, as the colour of a cell in the visualization is determined by its genotype information. 
+### Fields in `cell_table_10000.pcd`:
+`cell_id`: integer identifier; each cell has a unique one
+
+`x`: integer x-coordinate for the cell's position in a visual representation
+
+`y`: integer y-coordinate for the cell's position in a visual representation
+
+`z`: integer z-coordinate for the cell's position in a visual representation
+
+`genotype_id`: integer identifier that categorizes cells; the colour of a cell in the visualization is determined by its genotype information
+
+### Fields in `genotype_table_10000.pcd`:
+`genotype_id`: same as in `cell_table_10000.pcd`
+
+`mother_genotype_id`: the `genotype_id` belonging to the cell's direct ancestor; if a cell has a `mother_genotype_id` of `-1`, that means it has no ancestors
+
+### Fields in `mutation_table_10000.pcd`:
+`genotype_id`: same as in `cell_table_10000.pcd` and `genotype_table_10000.pcd`
+
+`mutation_id`: integer identifier; each one represents a mutation belonging to a cell
+
+`is_driver`: boolean value; states if the mutation in question is a driver mutation or not
+
+`is_resistant`: boolean value; states if the mutation in question is a resistant mutation or not
+
+More information about driver and resistant mutations can be found [here](https://www.nature.com/articles/nature14971).
 
 ## Future work
 I'm interested in potentially modifying the visualizer to update in real time and/or have the ability to step through different states, by providing multiple outputs from TumourSimulator.
